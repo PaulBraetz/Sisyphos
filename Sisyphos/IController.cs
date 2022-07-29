@@ -3,9 +3,11 @@
     public interface IController<TControlled>
         where TControlled : IControlled
     {
-        Double P { get; set; }
-        Double I { get; set; }
-        Double D { get; set; }
+        public Double P { get; set; }
+        public Double I { get; set; }
+        public Double D { get; set; }
+        public Double CorrectionMax { get; set; }
+        public Double CorrectionMin { get; set; }
 
         TControlled Controlled { get; }
         

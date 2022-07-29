@@ -19,7 +19,7 @@ namespace WinFormsApp1
 
             public Double GetResult()
             {
-                return _result + Random.Shared.NextDouble();
+                return _result + Random.Shared.NextDouble()/10;
             }
 
             public Double GetTarget()
@@ -49,51 +49,48 @@ namespace WinFormsApp1
                 Title = "Data"
             };
 
+            var controlled = new Controlled();
+            var controller = new TimedController(controlled, TimeSpan.FromMilliseconds(1))
+            {
+                P = 0.09,
+                I = 0.005,
+                D = 0.2
+            };
 
             var referenceSeries = new FunctionSeries()
             {
-                Color = OxyColor.FromRgb(255, 0, 0)
+                Color = OxyColor.FromRgb(200, 200, 255)
             };
-
-            var stepSize = 50;
-
-            var targets = new[] { 0, 50, 100, 50 };
-
-            for (int j = 0; j < targets.Length; j++)
-            {
-                referenceSeries.Points.Add(new DataPoint(j * stepSize, targets[j]));
-                referenceSeries.Points.Add(new DataPoint((j + 1) * stepSize, targets[j]));
-            }
-
-            plotView.Model.Series.Add(referenceSeries);
-
-            var controlled = new Controlled();
-
-            var controller = new Controller(controlled)
-            {
-                P = 1.1,
-                I = 0.1,
-                D = 0.01
-            };
-
             var functionSeries = new FunctionSeries()
             {
                 Color = OxyColor.FromRgb(0, 200, 0)
             };
 
+            var targets = Convert.ToString(Random.Shared.Next(), 2).Take(5).Select(c =>Byte.Parse(c.ToString())).ToArray();
+
+            var steps = 10000d;
+
+            var t = DateTimeOffset.Now;
+
             for (int j = 0; j < targets.Length; j++)
             {
                 var target = targets[j];
+
+                referenceSeries.Points.Add(new DataPoint(j*steps, target));
+                referenceSeries.Points.Add(new DataPoint((j + 1) * steps, target));
+
                 controlled.Target = target;
 
-                for (int k = 0; k < stepSize; k++)
+                for (int k = 0; k < steps; k++)
                 {
-                    controller.Correct();
-                    functionSeries.Points.Add(new DataPoint((j * stepSize) + k, Math.Clamp(controlled.GetResult(), 0.5 * target, 1.5 * target)));
+                    controller.Correct(t);
+                    functionSeries.Points.Add(new DataPoint((j * steps) + k, controlled.GetResult()));
+                    t += TimeSpan.FromMilliseconds(0.5);
                 }
             }
 
             plotView.Model.Series.Add(functionSeries);
+            plotView.Model.Series.Add(referenceSeries);
 
             base.OnLoad(e);
         }
