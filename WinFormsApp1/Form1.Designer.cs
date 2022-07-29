@@ -5,113 +5,126 @@ using Sisyphos;
 
 namespace WinFormsApp1
 {
-	partial class Form1
-	{
-		/// <summary>
-		///  Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+    partial class Form1
+    {
+        private sealed class Controlled : IControlled
+        {
+            private Double _result;
+            public Double Target { get; set; }
 
-		protected override void OnLoad(EventArgs e)
-		{
-			this.Size = new System.Drawing.Size(1000, 1000);
+            public void Apply(Double correction)
+            {
+                _result += correction;
+            }
 
-			var plotView = new PlotView()
-			{
-				Location = new Point(0, 0),
-				Size = new Size(850, 850)
-			};
-			Controls.Add(plotView);
+            public Double GetResult()
+            {
+                return _result + Random.Shared.NextDouble();
+            }
 
-			plotView.Model = new PlotModel()
-			{
-				Title = "Data"
-			};
+            public Double GetTarget()
+            {
+                return Target;
+            }
+        }
+
+        /// <summary>
+        ///  Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        protected override void OnLoad(EventArgs e)
+        {
+            this.Size = new System.Drawing.Size(1000, 1000);
+
+            var plotView = new PlotView()
+            {
+                Location = new Point(0, 0),
+                Size = new Size(850, 850)
+            };
+            Controls.Add(plotView);
+
+            plotView.Model = new PlotModel()
+            {
+                Title = "Data"
+            };
 
 
-			var referenceSeries = new FunctionSeries()
-			{
-				Color = OxyColor.FromRgb(255, 0, 0)
-			};
+            var referenceSeries = new FunctionSeries()
+            {
+                Color = OxyColor.FromRgb(255, 0, 0)
+            };
 
-			var targets = new[] { 0, 50, 100, 50 };
+            var stepSize = 50;
 
-			for (int j = 0; j < targets.Length; j++)
-			{
-				referenceSeries.Points.Add(new DataPoint(j * 100, targets[j]));
-				referenceSeries.Points.Add(new DataPoint((j + 1) * 100, targets[j]));
-			}
+            var targets = new[] { 0, 50, 100, 50 };
 
-			plotView.Model.Series.Add(referenceSeries);
+            for (int j = 0; j < targets.Length; j++)
+            {
+                referenceSeries.Points.Add(new DataPoint(j * stepSize, targets[j]));
+                referenceSeries.Points.Add(new DataPoint((j + 1) * stepSize, targets[j]));
+            }
 
-			var plots = 2d;
+            plotView.Model.Series.Add(referenceSeries);
 
-			for (Double p = 0; p < 1; p += 1d / plots)
-			{
-				for (Double i = 0; i < 1; i += 1d / plots)
-				{
-					for (Double d = 0; d < 1; d += 1d / plots)
-					{
-						var controller = new Controller()
-						{
-							P = p,
-							I = i,
-							D = d
-						};
+            var controlled = new Controlled();
 
-						var functionSeries = new FunctionSeries()
-						{
-							Color = OxyColor.FromRgb((Byte)(200 * p + 20), (Byte)(200 * i + 20), (Byte)(200 * d + 20))
-						};
+            var controller = new Controller(controlled)
+            {
+                P = 1.1,
+                I = 0.1,
+                D = 0.01
+            };
 
-						for (int j = 0; j < targets.Length; j++)
-						{
-							referenceSeries.Points.Add(new DataPoint(j * 100, targets[j]));
-							referenceSeries.Points.Add(new DataPoint((j + 1) * 100, targets[j]));
+            var functionSeries = new FunctionSeries()
+            {
+                Color = OxyColor.FromRgb(0, 200, 0)
+            };
 
-							controller.Target = targets[j];
+            for (int j = 0; j < targets.Length; j++)
+            {
+                var target = targets[j];
+                controlled.Target = target;
 
-							for (int k = 0; k < 100; k++)
-							{
-								functionSeries.Points.Add(new DataPoint((j * 100) + k, Math.Clamp(controller.Calculate(), -1 * targets[j], targets[j])));
-							}
-						}
+                for (int k = 0; k < stepSize; k++)
+                {
+                    controller.Correct();
+                    functionSeries.Points.Add(new DataPoint((j * stepSize) + k, Math.Clamp(controlled.GetResult(), 0.5 * target, 1.5 * target)));
+                }
+            }
 
-						plotView.Model.Series.Add(functionSeries);
-					}
-				}
-			}
+            plotView.Model.Series.Add(functionSeries);
 
-			base.OnLoad(e);
-		}
+            base.OnLoad(e);
+        }
 
-		/// <summary>
-		///  Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        ///  Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Windows Form Designer generated code
+        #region Windows Form Designer generated code
 
-		/// <summary>
-		///  Required method for Designer support - do not modify
-		///  the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-			this.components = new System.ComponentModel.Container();
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
-			this.Text = "Form1";
-		}
+        /// <summary>
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.components = new System.ComponentModel.Container();
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Text = "Form1";
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

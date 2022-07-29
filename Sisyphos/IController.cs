@@ -1,13 +1,14 @@
 ﻿namespace Sisyphos
 {
-	public interface IController
-	{
-		Double D { get; set; }
-		Double I { get; set; }
-		Double P { get; set; }
-		Double Result { get; set; }
-		Double Target { get; set; }
+    public interface IController<TControlled>
+        where TControlled : IControlled
+    {
+        Double P { get; set; }
+        Double I { get; set; }
+        Double D { get; set; }
 
-		void Calculate();
-	}
+        TControlled Controlled { get; }
+        
+        void Correct();
+    }
 }

@@ -1,8 +1,9 @@
 ﻿namespace Sisyphos
 {
-	public interface IControlled
-	{
-		public Double Result { get; set; }
-		public Double Target { get; set; }
-	}
+    public interface IControlled
+    {
+        public Double GetTarget();
+        public Double GetResult();
+        public void Apply(Double correction);
+    }
 }
