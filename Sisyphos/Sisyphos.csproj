@@ -1,9 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	  <TargetFramework>net6.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Authors>Paul Brätz</Authors>
+	  <Description>A primitive PID controller.</Description>
+	  <Copyright>2022</Copyright>
+	  <PackageTags>Rhomicro</PackageTags>
+	  <Version>1.0.0</Version>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <PackageId>RhoMicro.Sisyphos</PackageId>
+	  <AssemblyName>Sisyphos</AssemblyName>
+	  <RootNamespace>Sisyphos</RootNamespace>
+	  <Company>RhoMicro</Company>
+	  <PackageProjectUrl>https://github.com/PaulBraetz/Sisyphos/</PackageProjectUrl>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+	<PropertyGroup>
+		<Property>
+			<Features>
+				<Feature>
+					Simple PID Controller class
+				</Feature>
+			</Features>
+		</Property>
+	</PropertyGroup>
 
 </Project>
